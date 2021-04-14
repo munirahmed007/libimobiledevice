@@ -41,6 +41,7 @@
 
 #define FORMAT_KEY_VALUE 1
 #define FORMAT_XML 2
+#define FORMAT_JSON 3
 
 static const char *domains[] = {
 	"com.apple.disk_usage",
@@ -105,6 +106,7 @@ static void print_usage(int argc, char **argv, int is_error)
 		"  -q, --domain NAME  set domain of query to NAME. Default: None\n" \
 		"  -k, --key NAME     only query key specified by NAME. Default: All keys.\n" \
 		"  -x, --xml          output information as xml plist instead of key/value pairs\n" \
+ 	        "  -j, --json         output information as json instead of key/value pairs\n" \
 		"  -h, --help         prints usage information\n" \
 		"  -d, --debug        enable communication debugging\n" \
 		"  -v, --version      prints version information\n" \
@@ -147,6 +149,7 @@ int main(int argc, char *argv[])
 		{ "key", required_argument, NULL, 'k' },
 		{ "simple", no_argument, NULL, 's' },
 		{ "xml", no_argument, NULL, 'x' },
+        	{ "json", no_argument, NULL, 'j' },
 		{ "version", no_argument, NULL, 'v' },
 		{ NULL, 0, NULL, 0}
 	};
@@ -155,7 +158,7 @@ int main(int argc, char *argv[])
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
-	while ((c = getopt_long(argc, argv, "dhu:nq:k:sxv", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "dhu:nq:k:sxjv", longopts, NULL)) != -1) {
 		switch (c) {
 		case 'd':
 			idevice_set_debug_level(1);
@@ -190,6 +193,9 @@ int main(int argc, char *argv[])
 		case 'x':
 			format = FORMAT_XML;
 			break;
+        	case 'j':
+        		format = FORMAT_JSON;
+            		break;
 		case 's':
 			simple = 1;
 			break;
@@ -239,6 +245,11 @@ int main(int argc, char *argv[])
 				printf("%s", xml_doc);
 				free(xml_doc);
 				break;
+            		case FORMAT_JSON:
+                		plist_to_json(node, &xml_doc, &xml_length);
+                		printf("%s", xml_doc);
+                		free(xml_doc);
+                		break;
 			case FORMAT_KEY_VALUE:
 				plist_print_to_stream(node, stdout);
 				break;

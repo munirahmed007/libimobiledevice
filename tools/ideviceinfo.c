@@ -239,6 +239,7 @@ int main(int argc, char *argv[])
 	/* run query and output information */
 	if(lockdownd_get_value(client, domain, key, &node) == LOCKDOWN_E_SUCCESS) {
 		if (node) {
+			char *json;
 			switch (format) {
 			case FORMAT_XML:
 				plist_to_xml(node, &xml_doc, &xml_length);
@@ -247,8 +248,12 @@ int main(int argc, char *argv[])
 				break;
             		case FORMAT_JSON:
                 		plist_to_json(node, &xml_doc, &xml_length);
-                		printf("%s", xml_doc);
+				json = malloc(xml_length + 1);
+                              	strncpy(json, xml_doc, xml_length);
+                              	json[xml_length] = 0;
+                		printf("%s\n", json);
                 		free(xml_doc);
+				free(json);
                 		break;
 			case FORMAT_KEY_VALUE:
 				plist_print_to_stream(node, stdout);
